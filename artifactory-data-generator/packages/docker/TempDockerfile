@@ -1,0 +1,3 @@
+FROM busybox
+RUN date
+ADD {{GENERATED.DAT}} {{GENERATED.DAT}}

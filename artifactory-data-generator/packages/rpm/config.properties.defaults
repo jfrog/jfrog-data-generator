@@ -1,0 +1,26 @@
+# The Artifactory URL
+artifactory.url=
+# The name of the repository in Artifactory
+artifactory.repo=
+# The username to access Artifactory with
+artifactory.user=
+# The password to access Artifactory with
+artifactory.password=
+# The number of unique packages to deploy
+package.number=100
+# The root directory of where the packages should go
+package.root.dir=org/jfrog
+# The minimum package size (in bytes)
+package.size.min=10000
+# The maximum package size (in bytes)
+package.size.max=10000000
+# A prefix for the package name
+package.name.prefix=generated
+# The extension for the package
+package.name.extension=data
+# The release for the package
+package.release=rel
+# Any properties (in the form property1=value1;property2=value2) to add to the packages
+package.properties=generated=true
+# Number of worker threads
+generator.threads=8

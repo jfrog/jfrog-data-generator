@@ -1,0 +1,22 @@
+# The Artifactory Docker registry
+artifactory.registry=
+# The Artifactory URL
+artifactory.url=
+# The name of the docker local repository in Artifactory
+artifactory.repo=
+# The username to access Artifactory with
+artifactory.user=
+# The password to access Artifactory with
+artifactory.password=
+# The number of unique packages to deploy
+package.number=100
+# The minimum package size (in bytes)
+package.size.min=10000
+# The maximum package size (in bytes)
+package.size.max=10000000
+# Package name
+package.name=generated
+# Any properties (in the form property1=value1;property2=value2) to add to the packages
+package.properties=generated=true
+# Number of worker threads
+generator.threads=8

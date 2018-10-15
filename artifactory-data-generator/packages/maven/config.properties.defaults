@@ -1,0 +1,28 @@
+# The Artifactory URL
+artifactory.url=
+# The name of the Maven repository in Artifactory
+artifactory.repo=
+# The username to access Artifactory with
+artifactory.user=
+# The password to access Artifactory with
+artifactory.password=
+# The number of unique artifact ids
+package.number=10
+# The group id to deploy with
+package.group.id=org.jfrog
+# The number of major version
+package.major.versions=5
+# The major version to start at
+package.major.start=1
+# The number of minor versions per major version
+package.major.minor.versions=5
+# The minor version to start at
+package.major.minor.start=1
+# The type of packages (snapshot|release|plugin-snapshot|plugin-release)
+package.type=release
+# The number of unique snapshots
+package.snapshots.number=1
+# The number of extra files for each version deployment
+package.extra.files.number=1
+# The size of the extra files for each deployment
+package.extra.files.size=1
