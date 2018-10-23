@@ -55,14 +55,14 @@ These packages will be deployed to the repo $repoKey.
                     File pkgBaseDir = new File("tmp/generator/$batch_start/$id/${packageName}")
                     File pkgFileDir = new File("tmp/generator/$batch_start/$id/${packageName}/${packageName}")
                     File addFile = new File(pkgFileDir, "${packageName}${id}.dat")
-                    int fileSize = Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
+                    int fileSize = (maxSize == minSize) ? minSize : Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
                     HelperTools.createBinFile(addFile, fileSize)
                     ['sed', '-i', "s/{{VERSION}}/1.$id.0/g", "setup.py"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
                     ['python', 'setup.py', 'bdist_wheel'].execute (null, pkgBaseDir).waitForOrKill ( 35000 )
                     File pypiFile = new File("tmp/generator/$batch_start/$id/${packageName}/dist/${packageName}-1.${id}.0-py2-none-any.whl")
                     println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${packageName}/1.${id}.0/${packageName}-1.${id}.0-py2-none-any.whl ${HelperTools.getFileSha1(pypiFile)}")
                     // Upload the pypi package.
-                    ['python', 'setup.py', 'bdist_wheel', 'upload', '-r', 'artifactory'].execute (null, pkgBaseDir).waitForOrKill ( 35000 ) == 0
+                    ['python', 'setup.py', 'bdist_wheel', 'upload', '-r', 'artifactory'].execute (null, pkgBaseDir).waitForOrKill ( 36000000 ) == 0
                     RESTClient rc = new RESTClient()
                     def base64 = "${artifactoryUser}:${artifactoryPassword}".bytes.encodeBase64().toString()
                     rc.setHeaders([Authorization: "Basic ${base64}"])

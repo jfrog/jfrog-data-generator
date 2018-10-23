@@ -40,7 +40,7 @@ They will range in size from $minSize to $maxSize bytes and have the format $pac
                 // A batch of files is equal to the number of threads the user has asked for
                 (batch_start..(Math.min(batch_start+numOfThreads, numOfPackages) - 1)).eachParallel { id ->
                     File addFile = new File(batchDir, "$packagePrefix$id.$packageExtension")
-                    int fileSize = Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
+                    int fileSize = (maxSize == minSize) ? minSize : Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
                     HelperTools.createBinFile(addFile, fileSize)
                     println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/$rootDir/$packagePrefix$id.$packageExtension ${HelperTools.getFileSha1(addFile)}")
                 }

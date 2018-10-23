@@ -32,6 +32,31 @@ You can get a list of all the package types:
 You can modify the version, registry and image namespaces by copying the `env.setup.default` to 
 `env.setup` and overriding with your desired values before running the build.
 
+### Usage
+
+To run a generator, simply:
+
+* Pull the specific generator docker image (Note: Prerequisite is Docker 17.0+). 
+    * `docker pull <IMAGE-NAME>:<TAG-NAME>`
+    
+*  Run the image, mounting the properties file with your details
+    * `docker run --rm -v /my/copy/config.properties:/config.properties <IMAGE-NAME>:<TAG-NAME>`
+
+You can also pass in environment variables instead of a properties file:
+
+* Run the image, passing in environment variables with your details
+     * `docker run --rm -e "ARTIFACTORY_URL=http://example.org/artifactory" ... <IMAGE-NAME>:<TAG-NAME>`
+
+You can even mix and match, with environment variables taking precedence
+
+* Run the image, passing in environment variables and mounting a properties file with your details
+    * `docker run --rm -e "ARTIFACTORY_URL=http://example.org/artifactory" -v /my/copy/config.properties:/config.properties <IMAGE-NAME>:<TAG-NAME>`
+
+If README.md.template is available for the package generator type, You can see the usage details of the generator.
+* Run the image, with environment variable PRINT_HELP   
+    * `run -it -e PRINT_HELP=true <IMAGE-NAME>:<TAG-NAME>`
+
+
 ## Adding a new package type
 
 To add a new package type, you will need to:

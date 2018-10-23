@@ -43,7 +43,7 @@ These docker image(s) will be pushed to the docker repo ${repoKey} in Artifactor
                     ['cp', "root/TempDockerfile", "tmp/generator/$batch_start/$id/Dockerfile"].execute ( ).waitForOrKill ( 15000 )
                     File pkgBaseDir = new File("tmp/generator/$batch_start/$id")
                     File addFile = new File("tmp/generator/$batch_start/$id", "${packageName}${id}.dat")
-                    int fileSize = Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
+                    int fileSize = (maxSize == minSize) ? minSize : Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
                     HelperTools.createBinFile(addFile, fileSize)
                     ['sed', '-i', "s/{{GENERATED.DAT}}/${packageName}${id}.dat/g", "Dockerfile"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
                     ['docker', 'build', '-t', "${artifactoryRegistry}/${packageName}:1.${id}", '.'].execute (null, pkgBaseDir).waitForOrKill ( 35000 ) == 0

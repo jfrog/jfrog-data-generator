@@ -48,13 +48,13 @@ These packages will be deployed to the repo $repoKey.
                     ['cp', '-R', "root/${packageName}", "tmp/generator/$batch_start/$id/${packageName}${id}"].execute ( ).waitForOrKill ( 15000 )
                     File pkgBaseDir = new File("tmp/generator/$batch_start/$id/${packageName}${id}")
                     File addFile = new File(pkgBaseDir, "${packageName}${id}.dat")
-                    int fileSize = Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
+                    int fileSize = (maxSize == minSize) ? minSize : Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
                     HelperTools.createBinFile(addFile, fileSize)
                     ['sed', '-i', "s/{{VERSION}}/1.$id.0/g", "package.json"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
                     ['sed', '-i', "s/\"generated\"/\"${packageName}${id}\"/g", "package.json"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
                     ['sed', '-i', "s/generated.dat/${packageName}${id}.dat/g", "package.json"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
                     ['npm', 'install', "${packageName}${id}"].execute (null, iterDir).waitForOrKill ( 25000 )
-                    ['npm', 'publish', "${packageName}${id}"].execute (null, iterDir).waitForOrKill ( 25000 )
+                    ['npm', 'publish', "${packageName}${id}"].execute (null, iterDir).waitForOrKill ( 36000000 )
                     File npmFile = new File("/root/.npm/${packageName}${id}/1.$id.0/package.tgz")
                     println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${packageName}${id}/-/${packageName}${id}-1.${id}.0.tgz ${HelperTools.getFileSha1(npmFile)}")
                     RESTClient rc = new RESTClient()

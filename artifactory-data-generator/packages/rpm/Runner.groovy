@@ -44,7 +44,7 @@ They will range in size from $minSize to $maxSize bytes and have the format $pac
                     pkgFileDir.mkdirs()
                     ['cp', '-R', 'root/rpmbuild', "tmp/generator/$batch_start/$id/"].execute ( ).waitForOrKill ( 5000 )
                     File addFile = new File(pkgFileDir, "$packagePrefix$id")
-                    int fileSize = Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
+                    int fileSize = (maxSize == minSize) ? minSize : Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
                     HelperTools.createBinFile(addFile, fileSize)
                     ['tar', '-zcf', "rpmbuild/SOURCES/${packagePrefix}.tar.gz", "${packagePrefix}/"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
                     ['sed', '-i', "s/{i}/$id/g", "rpmbuild/SPECS/rpmpackage.spec"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )

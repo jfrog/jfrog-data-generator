@@ -120,13 +120,24 @@ class HelperTools {
      * @param fileSize The size (in bytes)
      */
     static def createBinFile(File filePath, def fileSize) {
-        def systemCall = 'dd if=/dev/urandom of=' + filePath.absoluteFile + ' bs=' + fileSize + " count=1"
-        def proc = systemCall.execute()
-        proc.waitForOrKill(3600000)
-        if (proc.exitValue()) {
-            println "Error creating " + filePath.absoluteFile + ", error: " + proc.exitValue()
-            throw new IOException()
+        // Handling creation of bin file as block size chunk of 32MB.
+        def multipleCount = (fileSize / 33554431).intValue()
+        def remainderCount = (fileSize % 33554431).intValue()
+        if (multipleCount > 0) {
+            def systemCallMultiple = 'dd if=/dev/urandom of=' + filePath.absoluteFile + ' bs=33554431' + " count=$multipleCount"
+            def proc = systemCallMultiple.execute()
+            proc.waitForOrKill(36000000)
+            if (proc.exitValue()) {
+                println "Error creating " + filePath.absoluteFile + ", error: " + proc.exitValue()
+                throw new IOException()
+            }
         }
+        def systemCallRemainder = 'dd if=/dev/urandom ' + "bs=$remainderCount count=1"
+        ProcessBuilder builder = new ProcessBuilder(systemCallRemainder.split(' '))
+        builder.redirectErrorStream(false)
+        builder.redirectOutput(ProcessBuilder.Redirect.appendTo(filePath))
+        Process process = builder.start()
+        process.waitFor()
     }
 
     /**

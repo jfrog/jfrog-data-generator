@@ -47,10 +47,10 @@ These packages will be deployed to the repo $repoKey.
                     ['conan', 'new', "${packageName}/1.$id", '-t', '-s'].execute (null, iterDir ).waitForOrKill ( 15000 )
                     File pkgFileDir = new File("tmp/generator/$batch_start/$id/src")
                     File addFile = new File(pkgFileDir, "${packageName}${id}.h")
-                    int fileSize = Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
+                    int fileSize = (maxSize == minSize) ? minSize : Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
                     HelperTools.createBinFile(addFile, fileSize)
                     ['conan', 'create', '.', "${packageUser}/${packageChannel}"].execute (null, iterDir ).waitForOrKill ( 15000 )
-                    ['conan', 'upload', "${packageName}/1.${id}@${packageUser}/${packageChannel}", '-r', 'artifactory', '-c'].execute (null, iterDir ).waitForOrKill ( 15000 )
+                    ['conan', 'upload', "${packageName}/1.${id}@${packageUser}/${packageChannel}", '-r', 'artifactory', '-c'].execute (null, iterDir ).waitForOrKill ( 36000000 )
                     File srcFile = new File("/root/.conan/data/${packageName}/1.${id}/${packageUser}/${packageChannel}/export/conan_sources.tgz")
                     println("$OUTPUT_PREFIX $ADD_PREFIX ${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel} ${HelperTools.getFileSha1(srcFile)}")
                     RESTClient rc = new RESTClient()
