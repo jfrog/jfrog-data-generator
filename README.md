@@ -13,6 +13,16 @@ To get started, simply clone this project, make sure you meet the pre-requisites
   * The ability to run images
 * *NIX tools
 
+## Currently Support packages
+
+* Conan
+* Docker
+* Generic
+* Maven
+* NPM
+* PyPi
+* RPM (YUM)
+
 ### Building
 
 To build the docker images responsible to generate binaries using default settings, simply run:
