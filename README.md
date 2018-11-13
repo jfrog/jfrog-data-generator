@@ -4,7 +4,9 @@ This utility generates binaries of different package types and publishes them to
 
 ## Getting Started
 
-To get started, simply clone this project, make sure you meet the pre-requisites. It is also recommended to go through the package type specific README.
+To get started, simply clone this project, make sure you meet the pre-requisites. 
+Build your package generator docker image. And, Run a docker container using the generated docker image.
+See instructions for building docker image and usage details in below sections.
  
 ### Pre-requisites
 
