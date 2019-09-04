@@ -1,5 +1,5 @@
 #!/usr/local/bin/groovy
-@GrabResolver(name = 'jcenter', root = 'http://jcenter.bintray.com/')
+@GrabResolver(name = 'jcenter', root = 'https://jcenter.bintray.com/')
 @Grab('org.codehaus.gpars:gpars:0.9')
 @Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2')
 @Grab('commons-io:commons-io:1.2')
