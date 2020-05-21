@@ -1,8 +1,8 @@
 ARG REGISTRY
-FROM ${REGISTRY}java:8
+FROM ${REGISTRY}openjdk:8
 # Install needed tools, including CLI
 RUN apt-get update && apt-get install -y curl unzip
-RUN curl -OL https://bintray.com/artifact/download/groovy/maven/apache-groovy-binary-2.4.14.zip
+RUN curl -OL https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.4.14.zip
 RUN unzip apache-groovy-binary-2.4.14.zip && ln -s /groovy-2.4.14/bin/groovy /usr/local/bin/groovy
 RUN curl -fL https://getcli.jfrog.io | sh && ln -s /jfrog /usr/local/bin/jfrog
 # Actual generator
