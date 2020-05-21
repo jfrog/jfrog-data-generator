@@ -7,16 +7,10 @@ artifactory.user=
 # The password to access Artifactory with
 artifactory.password=
 # The number of unique artifact ids
-package.number=5
-# The group id to deploy with
-package.group.id=org.jfrog
-# The number of major version
-package.major.versions=5
+package.number=100
 # The major version to start at
-package.major.start=1
-# The number of minor versions per major version
-package.major.minor.versions=5
-# The minor version to start at
-package.major.minor.start=1
+package.number.start=1
 # The max size of generated file in bytes
 max.file.size=50000000
+# The min size of generated file in bytes
+min.file.size=10000

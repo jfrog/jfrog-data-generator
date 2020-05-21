@@ -9,76 +9,72 @@ import java.security.SecureRandom
 import groovyx.net.http.RESTClient
 
 // Run the generator
-new GenerateNPM().init(args)
+new GeneratePHP().init(args)
 
-
-class GenerateNPM extends Generator {
+class GeneratePHP extends Generator {
     public static final String OUTPUT_PREFIX = "##PHP##"
     public static final String ADD_PREFIX = "ADD"
     public static final int NUM_OF_WORKERS = 8
     // User input
-    def artifactoryUrl, artifactoryUser, artifactoryPassword, repoKey, groupId, artifactIds, majorStart, major,
-        minorStart, minor, maxFileSize, fileSize
+    def artifactoryUrl, artifactoryUser, artifactoryPassword, repoKey, packagesAmount, packageNumberStart, maxFileSize, minFileSize
     synchronized def passed = true
 
     /**
      * Generates php packages and deploys them to Artifactory
      */
     boolean generate() {
+        SecureRandom random = new SecureRandom()
+        String artifactsDir = "artifacts"
+        File outDir = new File("generated")
+        outDir.mkdirs()
         println """ What we are going to do?
-        We are going to build  $artifactIds  packages, each with  $major  major versions, each one of those major version will have
-          $minor  minor version."""
-
-        def ext = ""
+        We are going to build  $packagesAmount  packages"""
 
         ['jfrog', 'rt', 'c', 'art', "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}"].execute().waitForOrKill(15000)
 
         GParsPool.withPool 12, {
-            for (int artifactId = 1; artifactId < artifactIds.toInteger() + 1; artifactId++) {
-                String filePath
+            (packageNumberStart..packagesAmount).eachParallel {
                 String artifactName = HelperTools.generateString(9)
-                println "Creating versions for multi${artifactId}"
-                def rootPath = "${groupId.replace(".", "/")}"
-                filePath = "$rootPath/$artifactName"
+                println "Creating artifacts ${artifactName}"
+                File artifactFolder = new File("$artifactsDir/$artifactName")
+                artifactFolder.mkdirs()
+                sleep(1)
+                int fileSize = (minFileSize == maxFileSize) ? minFileSize : Math.abs(random.nextLong() % (maxFileSize - minFileSize)) + minFileSize
+                String extraFileName = "${artifactName}.php"
+                File addFile = new File(artifactFolder, extraFileName)
+                HelperTools.createBinFile(addFile, fileSize)
+                println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${extraFileName} ${HelperTools.getFileSha1(addFile)}")
 
-                (majorStart..(majorStart + major - 1).toInteger()).eachParallel { maj ->
-                    (minorStart..(minorStart + minor - 1).toInteger()).each { min ->
-                        def version = "$maj.$min$ext"
-                        File versionFolder = new File("$filePath/$version")
-                        versionFolder.mkdirs()
-                        fileSize = new SecureRandom().nextInt(maxFileSize) + 1
-                        String extraFileName = artifactName + "-${version}.php"
-                        File addFile = new File(versionFolder, extraFileName)
-                        HelperTools.createBinFile(addFile, fileSize)
-                        println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${versionFolder}/${extraFileName} ${HelperTools.getFileSha1(addFile)}")
+                // composer.json
+                String composerName = "composer.json"
+                File composerFile = new File(artifactFolder, composerName)
+                composerFile << generateComposerJson(artifactName as String)
+                println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${composerName} ${HelperTools.getFileSha1(composerFile)}")
 
-                        // composer.json
-                        String composerName = "composer.json"
-                        File composerFile = new File(versionFolder, composerName)
-                        composerFile << generateComposerJson(artifactName as String, version)
-                        println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${versionFolder}/${composerName} ${HelperTools.getFileSha1(composerFile)}")
+                // create tars
+                String packageName = "$outDir/${artifactName}.tar.gz"
+                String createTar = "tar czvf $packageName ${artifactFolder}/"
+                HelperTools.executeCommandAndPrint(createTar)
 
-                        // create tar
-                        String packageName = "${versionFolder}/${artifactName}-${version}.tar.gz"
-                        String createTar = "tar czvf $packageName ${versionFolder}/"
-                        HelperTools.executeCommandAndPrint(createTar)
-
-                        long buildNumber = System.currentTimeMillis()
-                        String cmd = "jfrog rt upload " +
-                                "--server-id=art " +
-                                "--flat=false " +
-                                "--threads=15 " +
-                                "--build-name=dummy-project --build-number=${buildNumber} " +
-                                "${packageName}/ " +
-                                "$repoKey/"
-                        println cmd
-                        passed &= HelperTools.executeCommandAndPrint(cmd) == 0 ? true : false
-                    }
-                }
-
-                FileUtils.deleteDirectory(new File(rootPath))
+                long buildNumber = System.currentTimeMillis()
             }
         }
+
+        String cmd = "jfrog rt u " +
+                "${outDir}/*.tar.gz " +
+                "$repoKey/ " +
+                "--server-id=art " +
+                "--threads=15"
+        println cmd
+        passed &= HelperTools.executeCommandAndPrint(cmd) == 0 ? true : false
+        File uploadedFilesList = new File("uploadedFiles")
+        outDir.eachFile {
+            uploadedFilesList << "${it.name}\n"
+        }
+
+        FileUtils.deleteDirectory(new File(artifactsDir))
+        FileUtils.deleteDirectory(outDir)
+
         return passed
     }
 
@@ -161,13 +157,10 @@ class GenerateNPM extends Generator {
         artifactoryUser = userInput.getUserInput("artifactory.user")
         artifactoryPassword = userInput.getUserInput("artifactory.password")
         repoKey = userInput.getUserInput("artifactory.repo")
-        groupId = userInput.getUserInput("package.group.id")
-        artifactIds = userInput.getUserInput("package.number") as Integer
-        majorStart = userInput.getUserInput("package.major.start") as Integer
-        major = userInput.getUserInput("package.major.versions") as Integer
-        minorStart = userInput.getUserInput("package.major.minor.start") as Integer
-        minor = userInput.getUserInput("package.major.minor.versions") as Integer
+        packagesAmount = userInput.getUserInput("package.number") as Integer
+        packageNumberStart = userInput.getUserInput("package.number.start") as Integer
         maxFileSize = userInput.getUserInput("max.file.size") as Integer
+        minFileSize = userInput.getUserInput("min.file.size") as Integer
     }
 
     /**
@@ -176,7 +169,7 @@ class GenerateNPM extends Generator {
      * @param version - package version
      * @return content for composer.json as String
      */
-    private static String generateComposerJson(String name, String version) {
+    private static String generateComposerJson(String name, def version = '1.0') {
         """{
     "name": "$name",
     "description": "Simple package test",
