@@ -51,17 +51,16 @@ class GeneratePHP extends Generator {
                 composerFile << generateComposerJson(artifactName as String)
                 println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${composerName} ${HelperTools.getFileSha1(composerFile)}")
 
-                // create tars
-                String packageName = "$outDir/${artifactName}.tar.gz"
-                String createTar = "tar czvf $packageName ${artifactFolder}/"
-                HelperTools.executeCommandAndPrint(createTar)
+                // create zips
+                String packageLocation = "$outDir/${artifactName}.zip"
+                ["zip", "-rj", "$packageLocation", "${artifactFolder.path}"].execute()
 
                 long buildNumber = System.currentTimeMillis()
             }
         }
 
         String cmd = "jfrog rt u " +
-                "${outDir}/*.tar.gz " +
+                "${outDir}/*.zip " +
                 "$repoKey/ " +
                 "--server-id=art " +
                 "--threads=15"
