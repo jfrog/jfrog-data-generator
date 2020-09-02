@@ -1,8 +1,5 @@
 #!/usr/local/bin/groovy
 @GrabResolver(name = 'jcenter', root = 'https://jcenter.bintray.com/')
-@Grab('org.codehaus.gpars:gpars:0.9')
-@Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2')
-@Grab('commons-io:commons-io:1.2')
 import groovyx.gpars.GParsPool
 import org.apache.commons.io.FileUtils
 import groovyx.net.http.RESTClient
@@ -26,10 +23,12 @@ class GenerateConan extends Generator {
         Random random = new Random()
         println """ What we are going to do? We are going to build  $numOfPackages conan packages. 
 These packages will be deployed to the repo $repoKey. 
+Min package size = $minSize. max size = $maxSize.
 """
 
         // Login setup
-        ['conan', 'remote', 'add', 'artifactory', "${artifactoryUrl}/api/conan/${repoKey}"].execute ().waitForOrKill ( 15000 )
+        // force update in case if such repo already cached
+        ['conan', 'remote', 'add', '-f', 'artifactory', "${artifactoryUrl}/api/conan/${repoKey}", 'False'].execute ().waitForOrKill ( 15000 )
         ['conan', 'user', '-p', "${artifactoryPassword}", '-r', 'artifactory', "${artifactoryUser}"].execute ().waitForOrKill ( 15000 )
         String cmd = 'conan remote list'
         HelperTools.executeCommandAndPrint(cmd)
@@ -50,20 +49,23 @@ These packages will be deployed to the repo $repoKey.
                     int fileSize = (maxSize == minSize) ? minSize : Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
                     HelperTools.createBinFile(addFile, fileSize)
                     ['conan', 'create', '.', "${packageUser}/${packageChannel}"].execute (null, iterDir ).waitForOrKill ( 15000 )
+                    println("conan upload ${packageName}/1.${id}@${packageUser}/${packageChannel} -r artifactory -c")
                     ['conan', 'upload', "${packageName}/1.${id}@${packageUser}/${packageChannel}", '-r', 'artifactory', '-c'].execute (null, iterDir ).waitForOrKill ( 36000000 )
-                    File srcFile = new File("/root/.conan/data/${packageName}/1.${id}/${packageUser}/${packageChannel}/export/conan_sources.tgz")
+                    File srcFile = new File("/Users/anton/.conan/data/${packageName}/1.${id}/${packageUser}/${packageChannel}/export/conan_sources.tgz")
                     println("$OUTPUT_PREFIX $ADD_PREFIX ${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel} ${HelperTools.getFileSha1(srcFile)}")
-                    RESTClient rc = new RESTClient()
-                    def base64 = "${artifactoryUser}:${artifactoryPassword}".bytes.encodeBase64().toString()
-                    rc.setHeaders([Authorization: "Basic ${base64}"])
-                    try {
-                        rc.put(uri: "${artifactoryUrl}/api/storage/${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel}?properties=${packageProperties}")
-                    } catch (Exception e) {
-                        System.err.println("Update properties API call failed for ${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel}. " +
-                                "Exception:  ${e.getMessage()}")
-                    }
+
+                    // perfectly works without this part...
+//                    RESTClient rc = new RESTClient()
+//                    def base64 = "${artifactoryUser}:${artifactoryPassword}".bytes.encodeBase64().toString()
+//                    rc.setHeaders([Authorization: "Basic ${base64}"])
+//                    try {
+//                        rc.put(uri: "${artifactoryUrl}/api/storage/${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel}?properties=${packageProperties}")
+//                    } catch (Exception e) {
+//                        System.err.println("Update properties API call failed for ${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel}. " +
+//                                "Exception:  ${e.getMessage()}")
+//                    }
                 }
-                FileUtils.deleteDirectory(batchDir)
+//                FileUtils.deleteDirectory(batchDir)
             }
         }
         return passed
