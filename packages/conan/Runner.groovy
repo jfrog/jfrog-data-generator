@@ -55,6 +55,15 @@ Min package size = $minSize. max size = $maxSize.
                     File srcFile = new File("/root/.conan/data/${packageName}/1.${id}/${packageUser}/${packageChannel}/export/conan_sources.tgz")
                     println("$OUTPUT_PREFIX $ADD_PREFIX ${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel} ${HelperTools.getFileSha1(srcFile)}")
 
+                    RESTClient rc = new RESTClient()
+                    def base64 = "${artifactoryUser}:${artifactoryPassword}".bytes.encodeBase64().toString()
+                    rc.setHeaders([Authorization: "Basic ${base64}"])
+                    try {
+                        rc.put(uri: "${artifactoryUrl}/api/storage/${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel}?properties=${packageProperties}")
+                    } catch (Exception e) {
+                        System.err.println("Update properties API call failed for ${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel}. " +
+                                "Exception:  ${e.getMessage()}")
+                    }
                 }
                 FileUtils.deleteDirectory(batchDir)
             }
