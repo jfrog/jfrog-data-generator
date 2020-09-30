@@ -10,8 +10,8 @@ class HelperTools {
  */
     @Singleton
     static class UserInputProcessor {
-        public static final String CONFIG_PROPERTIES_FILE = "config.properties"
-        public static final String DEFAULT_CONFIG_PROPERTIES_FILE = "config.properties.defaults"
+        public static final String CONFIG_PROPERTIES_FILE = "/config.properties"
+        public static final String DEFAULT_CONFIG_PROPERTIES_FILE = "/config.properties.defaults"
         Properties properties = new Properties()
         Properties defaultProperties = new Properties()
 

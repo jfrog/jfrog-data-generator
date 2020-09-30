@@ -1,17 +1,17 @@
 # The Artifactory URL
-artifactory.url=http://localhost:8082/artifactory
+artifactory.url=
 # The name of the repository in Artifactory
-artifactory.repo=conan
+artifactory.repo=
 # The username to access Artifactory with
-artifactory.user=admin
+artifactory.user=
 # The password to access Artifactory with
-artifactory.password=password
+artifactory.password=
 # The number of unique packages to deploy
 package.number=100
 # The minimum package size (in bytes)
-package.size.min=100
+package.size.min=10000
 # The maximum package size (in bytes)
-package.size.max=10000
+package.size.max=10000000
 # Package name
 package.name=generated
 # Package user
