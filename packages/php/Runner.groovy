@@ -65,15 +65,15 @@ class GeneratePHP extends Generator {
                 "--server-id=art " +
                 "--threads=15"
         println cmd
-//        passed &= HelperTools.executeCommandAndPrint(cmd) == 0 ? true : false
+        passed &= HelperTools.executeCommandAndPrint(cmd) == 0
         File uploadedFilesList = new File("uploadedFiles")
         sleep(500)
         outDir.eachFile {
             uploadedFilesList << "${it.name}\n"
         }
 
-//        FileUtils.deleteDirectory(new File(artifactsDir))
-//        FileUtils.deleteDirectory(outDir)
+        FileUtils.deleteDirectory(new File(artifactsDir))
+        FileUtils.deleteDirectory(outDir)
 
         return passed
     }
