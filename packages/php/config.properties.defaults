@@ -1,0 +1,16 @@
+# The Artifactory URL (e.g. http://localhost:8081/artifactory)
+artifactory.url=
+# The name of the Maven repository in Artifactory
+artifactory.repo=
+# The username to access Artifactory with
+artifactory.user=
+# The password to access Artifactory with
+artifactory.password=
+# The number of unique artifact ids
+package.number=100
+# The major version to start at
+package.number.start=1
+# The max size of generated file in bytes
+max.file.size=5000000
+# The min size of generated file in bytes
+min.file.size=1000

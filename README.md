@@ -24,6 +24,8 @@ See instructions for building docker image and usage details in below sections.
 * NPM
 * PyPi
 * RPM (YUM)
+* PHP (tar.gz)
+* Alpine (.apk)
 
 ### Building
 

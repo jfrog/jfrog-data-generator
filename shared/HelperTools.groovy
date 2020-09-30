@@ -2,6 +2,7 @@
 import groovyjarjarcommonscli.MissingArgumentException
 import java.security.MessageDigest
 import java.io.*
+import java.security.SecureRandom
 
 class HelperTools {
 /**
@@ -138,6 +139,18 @@ class HelperTools {
         builder.redirectOutput(ProcessBuilder.Redirect.appendTo(filePath))
         Process process = builder.start()
         process.waitFor()
+    }
+
+    /**
+     *
+     * @param alphabet - set of chars which will be used to generate name
+     * @param n - length of generated string
+     * @return String
+     */
+    static def generateString(String alphabet = (('A'..'Z')+('a'..'z')+('0'..'9')).join(), int n) {
+        new SecureRandom().with {
+            (1..n).collect { alphabet[ nextInt( alphabet.length() ) ] }.join()
+        }
     }
 
     /**
