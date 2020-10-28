@@ -2,6 +2,7 @@
 import groovyjarjarcommonscli.MissingArgumentException
 import java.security.*
 import java.io.*
+import java.security.SecureRandom
 
 class HelperTools {
 /**
