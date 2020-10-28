@@ -1,6 +1,6 @@
 #!/usr/local/bin/groovy
 import groovyjarjarcommonscli.MissingArgumentException
-import java.security.MessageDigest
+import java.security.*
 import java.io.*
 import java.security.SecureRandom
 
@@ -88,7 +88,7 @@ class HelperTools {
                 propertiesFile.withInputStream {
                     properties.load(it)
                 }
-            } catch (FileNotFoundException ex) {
+            } catch (java.lang.FileNotFoundException ex) {
                 // It is okay since they may be providing everything through env properties
             }
         }
