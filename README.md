@@ -26,6 +26,9 @@ See instructions for building docker image and usage details in below sections.
 * RPM (YUM)
 * PHP (tar.gz)
 * Alpine (.apk)
+* Chef
+* Helm
+* Conda
 
 ### Building
 
