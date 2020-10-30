@@ -88,7 +88,7 @@ class HelperTools {
                 propertiesFile.withInputStream {
                     properties.load(it)
                 }
-            } catch (java.lang.FileNotFoundException ex) {
+            } catch (FileNotFoundException ex) {
                 // It is okay since they may be providing everything through env properties
             }
         }
