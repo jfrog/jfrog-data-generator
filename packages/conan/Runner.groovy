@@ -105,7 +105,7 @@ Min package size = $minSize. max size = $maxSize.
                         System.err.println("Expected file ${it.name} with checksum ${it.sha1} but did not find it.")
                         passed = false
                     }
-                } catch (Exception e) {
+                } catch (java.lang.Exception e) {
                     System.err.println("Expected file ${it.name} with checksum ${it.sha1} but did not find it. " +
                             "Exception:  ${e.getMessage()}")
                     passed = false
@@ -138,7 +138,7 @@ Min package size = $minSize. max size = $maxSize.
                 try {
                     def matchpkg = it.name =~ /(.+)\//
                     matchpkg.find() ? rc.delete(path: "artifactory/" + matchpkg.group(1)) : ""
-                } catch (Exception e) {
+                } catch (java.lang.Exception e) {
                     System.err.println("Artifactory delete operation failed for ${it.name}. " +
                             "Exception:  ${e.getMessage()}")
                     passed = false
