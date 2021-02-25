@@ -36,7 +36,7 @@ class GenerateHelm extends Generator {
         println """What we are going to do?
 We are going to build  $packagesAmount  package(s). Package size between $minFileSize and $maxFileSize bytes"""
 
-        ['jfrog', 'rt', 'c', 'art', "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}"].execute().waitForOrKill(15000)
+        ['jfrog', 'rt', 'c', "--interactive=false", "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}", 'art'].execute()
 
         (packageNumberStart..packagesAmount).each { version ->
             String artifactName = HelperTools.generateString(9)

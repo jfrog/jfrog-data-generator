@@ -37,7 +37,7 @@ class GenerateMaven extends Generator {
 
         def ext = ""
 
-        ['jfrog', 'rt', 'c', "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}", 'art'].execute ().waitForOrKill (15000)
+        ['jfrog', 'rt', 'c', "--interactive=false", "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}", 'art'].execute()
 
         GParsPool.withPool 12, {
             for (int artifactId = 1; artifactId < artifactIds.toInteger() + 1; artifactId++) {

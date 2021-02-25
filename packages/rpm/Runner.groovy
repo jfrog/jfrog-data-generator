@@ -30,7 +30,7 @@ They will range in size from $minSize to $maxSize bytes and have the format $pac
 """
 
         // Login
-        ['jfrog', 'rt', 'c', "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}", 'art'].execute ().waitForOrKill (15000)
+        ['jfrog', 'rt', 'c', "--interactive=false", "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}", 'art'].execute()
         // Creates and uploads files in batches
         GParsPool.withPool numOfThreads, {
             0.step numOfPackages, numOfThreads, {

@@ -30,7 +30,7 @@ class GeneratePHP extends Generator {
         println """ What we are going to do?
         We are going to build  $packagesAmount  packages"""
 
-        ['jfrog', 'rt', 'c', 'art', "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}"].execute().waitForOrKill(15000)
+        ['jfrog', 'rt', 'c', "--interactive=false", "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}", 'art'].execute()
 
         GParsPool.withPool 12, {
             (packageNumberStart..packagesAmount).eachParallel {
