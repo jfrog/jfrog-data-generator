@@ -16,6 +16,11 @@ properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: fal
 
 node("docker"){
 
+    git(
+        url: 'https://github.com/jfrog/jfrog-data-generator.git',
+        branch: 'fixed-login'
+    )
+
     stage('Build generator') {
         ansiColor('gnome-terminal'){
         sh  """
