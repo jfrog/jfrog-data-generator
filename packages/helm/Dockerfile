@@ -9,7 +9,7 @@ RUN apt-get install apt-transport-https -y
 RUN echo "deb https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list
 RUN apt-get update
 RUN apt-get install -y kubectl helm
-RUN curl -OL https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.4.14.zip
+RUN curl -OL https://archive.apache.org/dist/groovy/2.4.14/distribution/apache-groovy-binary-2.4.14.zip
 RUN unzip apache-groovy-binary-2.4.14.zip && ln -s /groovy-2.4.14/bin/groovy /usr/local/bin/groovy
 RUN curl -fL https://getcli.jfrog.io | sh && ln -s /jfrog /usr/local/bin/jfrog
 # Actual generator
