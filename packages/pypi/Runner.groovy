@@ -1,8 +1,8 @@
 #!/usr/local/bin/groovy
-@GrabResolver(name = 'jcenter', root = 'http://jcenter.bintray.com/')
-@Grab('org.codehaus.gpars:gpars:0.9')
-@Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2')
-@Grab('commons-io:commons-io:1.2')
+//@GrabResolver(name='restlet.org', root='http://maven.restlet.org')
+@Grab('org.codehaus.gpars:gpars:1.2.1')
+@Grab('org.codehaus.groovy.modules.http-builder:http-builder')
+@Grab('commons-io:commons-io:2.11.0')
 import groovyx.gpars.GParsPool
 import org.apache.commons.io.FileUtils
 import groovyx.net.http.RESTClient
@@ -14,8 +14,7 @@ class GeneratePyPi extends Generator {
     public static final String OUTPUT_PREFIX="##PYPI##"
     public static final String ADD_PREFIX="ADD"
     // User input
-    def artifactoryUrl, artifactoryUser, artifactoryPassword, repoKey, packageName,
-            packageProperties
+    def artifactoryUrl, artifactoryUser, artifactoryPassword, repoKey, packageName, packageProperties
     Integer numOfThreads, numOfPackages, minSize, maxSize
     synchronized def passed = true
 
@@ -58,11 +57,11 @@ These packages will be deployed to the repo $repoKey.
                     int fileSize = (maxSize == minSize) ? minSize : Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
                     HelperTools.createBinFile(addFile, fileSize)
                     ['sed', '-i', "s/{{VERSION}}/1.$id.0/g", "setup.py"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
-                    ['python', 'setup.py', 'bdist_wheel'].execute (null, pkgBaseDir).waitForOrKill ( 35000 )
-                    File pypiFile = new File("tmp/generator/$batch_start/$id/${packageName}/dist/${packageName}-1.${id}.0-py2-none-any.whl")
-                    println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${packageName}/1.${id}.0/${packageName}-1.${id}.0-py2-none-any.whl ${HelperTools.getFileSha1(pypiFile)}")
+                    ['python3', 'setup.py', 'bdist_wheel'].execute (null, pkgBaseDir).waitForOrKill ( 35000 )
+                    File pypiFile = new File("tmp/generator/$batch_start/$id/${packageName}/dist/${packageName}-1.${id}.0-py3-none-any.whl")
+                    println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${packageName}/1.${id}.0/${packageName}-1.${id}.0-py3-none-any.whl ${HelperTools.getFileSha1(pypiFile)}")
                     // Upload the pypi package.
-                    ['python', 'setup.py', 'bdist_wheel', 'upload', '-r', 'artifactory'].execute (null, pkgBaseDir).waitForOrKill ( 36000000 ) == 0
+                    ['python3', 'setup.py', 'bdist_wheel', 'upload', '-r', 'artifactory'].execute (null, pkgBaseDir).waitForOrKill ( 36000000 ) == 0
                     RESTClient rc = new RESTClient()
                     def base64 = "${artifactoryUser}:${artifactoryPassword}".bytes.encodeBase64().toString()
                     rc.setHeaders([Authorization: "Basic ${base64}"])
