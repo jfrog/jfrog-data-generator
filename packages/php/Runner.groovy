@@ -1,8 +1,8 @@
 #!/usr/local/bin/groovy
-@GrabResolver(name = 'jcenter', root = 'https://jcenter.bintray.com/')
-@Grab('org.codehaus.gpars:gpars:0.9')
-@Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2')
-@Grab('commons-io:commons-io:1.2')
+//@GrabResolver(name='restlet.org', root='http://maven.restlet.org')
+@Grab('org.codehaus.gpars:gpars:1.2.1')
+@Grab('org.codehaus.groovy.modules.http-builder:http-builder')
+@Grab('commons-io:commons-io:2.11.0')
 import groovyx.gpars.GParsPool
 import org.apache.commons.io.FileUtils
 import java.security.SecureRandom
@@ -30,7 +30,9 @@ class GeneratePHP extends Generator {
         println """ What we are going to do?
         We are going to build  $packagesAmount  packages"""
 
-        ['jfrog', 'rt', 'c', 'art', "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}"].execute().waitForOrKill(15000)
+        String login_cmd = "jfrog rt c " + "--interactive=false " + "--url=${artifactoryUrl} " + "--user=${artifactoryUser} " + "--password=${artifactoryPassword} " + "art "
+        println login_cmd
+        passed &= HelperTools.executeCommandAndPrint(login_cmd) == 0 ? true : false
 
         GParsPool.withPool 12, {
             (packageNumberStart..packagesAmount).eachParallel {
@@ -43,13 +45,13 @@ class GeneratePHP extends Generator {
                 String extraFileName = "${artifactName}.php"
                 File addFile = new File(artifactFolder, extraFileName)
                 HelperTools.createBinFile(addFile, fileSize)
-                println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${extraFileName} ${HelperTools.getFileSha1(addFile)}")
+                println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${extraFileName}")
 
                 // composer.json
                 String composerName = "composer.json"
                 File composerFile = new File(artifactFolder, composerName)
                 composerFile << generateComposerJson(artifactName as String)
-                println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${composerName} ${HelperTools.getFileSha1(composerFile)}")
+                println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${composerName}")
 
                 // create zips
                 String packageLocation = "$outDir/${artifactName}"
@@ -60,7 +62,7 @@ class GeneratePHP extends Generator {
         }
 
         String cmd = "jfrog rt u " +
-                "${outDir}/*.zip " +
+                "/${outDir}/*.zip " +
                 "$repoKey/ " +
                 "--server-id=art " +
                 "--threads=15"

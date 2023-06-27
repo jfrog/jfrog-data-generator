@@ -33,7 +33,10 @@ class GeneratePHP extends Generator {
         println """ What we are going to do?
         We are going to build $packagesAmount packages"""
 
-        ['jfrog', 'rt', 'c', 'art', "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}"].execute().waitForOrKill(15000)
+        // CLI Login
+        String login_cmd = "jfrog rt c " + "--interactive=false " + "--url=${artifactoryUrl} " + "--user=${artifactoryUser} " + "--password=${artifactoryPassword} " + "art "
+        println login_cmd
+        passed &= HelperTools.executeCommandAndPrint(login_cmd) == 0 ? true : false
 
         GParsPool.withPool 15, {
             (packageNumberStart..packagesAmount).eachParallel {
@@ -46,7 +49,7 @@ class GeneratePHP extends Generator {
                 int fileSize = (minFileSize == maxFileSize) ? minFileSize : Math.abs(random.nextLong() % (maxFileSize - minFileSize)) + minFileSize
                 File addFile = new File(artifactFolder, artifactName)
                 HelperTools.createBinFile(addFile, fileSize)
-                println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${artifactName} ${HelperTools.getFileSha1(addFile)}")
+                println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${artifactName}")
 
                 // .PKGINFO
                 String fileName = ".PKGINFO"
@@ -54,7 +57,7 @@ class GeneratePHP extends Generator {
                 String minVersion = random.nextInt(99)
                 String version = "${it}.${minVersion}"
                 pkgInfoFile << generatePkgInfo(artifactName as String, System.currentTimeMillis() as String, version, fileSize as String)
-                println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${fileName} ${HelperTools.getFileSha1(pkgInfoFile)}")
+                println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${fileName}")
             }
         }
         generateOnePackage("packToDelete")
@@ -62,7 +65,7 @@ class GeneratePHP extends Generator {
         "bash pack.sh".execute()
 
         String cmd = "jfrog rt u " +
-                "${outDir}/*.apk " +
+                "/${outDir}/*.apk " +
                 "$repoKey/ " +
                 "--server-id=art " +
                 "--threads=15"
@@ -92,7 +95,7 @@ class GeneratePHP extends Generator {
         int fileSize = (minFileSize == maxFileSize) ? minFileSize : Math.abs(random.nextLong() % (maxFileSize - minFileSize)) + minFileSize
         File addFile = new File(artifactFolder, packageName)
         HelperTools.createBinFile(addFile, fileSize)
-        println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${packageName} ${HelperTools.getFileSha1(addFile)}")
+        println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${packageName}")
 
         // .PKGINFO
         String fileName = ".PKGINFO"
@@ -101,7 +104,7 @@ class GeneratePHP extends Generator {
         String majVersion = random.nextInt(50)
         String version = "${majVersion}.${minVersion}"
         pkgInfoFile << generatePkgInfo(packageName as String, System.currentTimeMillis() as String, version, fileSize as String)
-        println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${fileName} ${HelperTools.getFileSha1(pkgInfoFile)}")
+        println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${artifactFolder}/${fileName}")
     }
 
     /**

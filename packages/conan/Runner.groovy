@@ -1,5 +1,8 @@
 #!/usr/local/bin/groovy
-@GrabResolver(name = 'jcenter', root = 'https://jcenter.bintray.com/')
+//@GrabResolver(name='restlet.org', root='http://maven.restlet.org')
+@Grab('org.codehaus.gpars:gpars:1.2.1')
+@Grab('org.codehaus.groovy.modules.http-builder:http-builder')
+@Grab('commons-io:commons-io:2.11.0')
 import groovyx.gpars.GParsPool
 import groovyx.net.http.RESTClient
 import org.apache.commons.io.FileUtils
@@ -52,8 +55,9 @@ Min package size = $minSize. max size = $maxSize.
                     ['conan', 'create', '.', "${packageUser}/${packageChannel}"].execute(null, iterDir).waitForOrKill(15000)
                     println("conan upload ${packageName}/1.${id}@${packageUser}/${packageChannel} -r artifactory -c")
                     ['conan', 'upload', "${packageName}/1.${id}@${packageUser}/${packageChannel}", '-r', 'artifactory', '-c'].execute(null, iterDir).waitForOrKill(36000000)
-                    File srcFile = new File("/root/.conan/data/${packageName}/1.${id}/${packageUser}/${packageChannel}/export/conan_sources.tgz")
-                    println("$OUTPUT_PREFIX $ADD_PREFIX ${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel} ${HelperTools.getFileSha1(srcFile)}")
+//                    File srcFile = new File("/root/.conan/data/${packageName}/1.${id}/${packageUser}/${packageChannel}/export/conan_sources.tgz")
+//                    println("$OUTPUT_PREFIX $ADD_PREFIX ${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel} ${HelperTools.getFileSha1(srcFile)}")
+                    println("$OUTPUT_PREFIX $ADD_PREFIX ${repoKey}/${packageUser}/${packageName}/1.${id}/${packageChannel}")
 
                     RESTClient rc = new RESTClient()
                     def base64 = "${artifactoryUser}:${artifactoryPassword}".bytes.encodeBase64().toString()
