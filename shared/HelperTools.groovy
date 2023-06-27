@@ -1,5 +1,5 @@
 #!/usr/local/bin/groovy
-import groovyjarjarcommonscli.MissingArgumentException
+//import groovyjarjarcommonscli.MissingArgumentException
 import java.security.*
 import java.io.*
 import java.security.SecureRandom
@@ -64,7 +64,7 @@ class HelperTools {
             } else if (defaultProperties.getProperty(propName)) {
                 return defaultProperties.getProperty(propName)
             }
-            throw new MissingArgumentException("Required property $propName (or environment variable $envName) not provided")
+//            throw new MissingArgumentException("Required property $propName (or environment variable $envName) not provided")
         }
         /**
          * Converts the property name into the environment variable equivalent
