@@ -1,10 +1,10 @@
 #!/usr/local/bin/groovy
 
 import groovy.transform.WithWriteLock
-@GrabResolver(name = 'jcenter', root = 'https://jcenter.bintray.com/')
-@Grab('org.codehaus.gpars:gpars:0.9')
-@Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2')
-@Grab('commons-io:commons-io:1.2')
+//@GrabResolver(name='restlet.org', root='http://maven.restlet.org')
+@Grab('org.codehaus.gpars:gpars:1.2.1')
+@Grab('org.codehaus.groovy.modules.http-builder:http-builder')
+@Grab('commons-io:commons-io:2.11.0')
 import groovyx.gpars.GParsPool
 import groovyx.net.http.RESTClient
 import org.apache.commons.io.FileUtils
@@ -36,7 +36,7 @@ class GenerateHelm extends Generator {
         println """What we are going to do?
 We are going to build  $packagesAmount  package(s). Package size between $minFileSize and $maxFileSize bytes"""
 
-        ['jfrog', 'rt', 'c', 'art', "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}"].execute().waitForOrKill(15000)
+        ['jfrog', 'rt', 'c', "--interactive=false", "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}", 'art'].execute()
 
         (packageNumberStart..packagesAmount).each { version ->
             String artifactName = HelperTools.generateString(9)

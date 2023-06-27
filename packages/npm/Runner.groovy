@@ -1,8 +1,8 @@
 #!/usr/local/bin/groovy
-@GrabResolver(name = 'jcenter', root = 'https://jcenter.bintray.com/')
-@Grab('org.codehaus.gpars:gpars:0.9')
-@Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2')
-@Grab('commons-io:commons-io:1.2')
+//@GrabResolver(name='restlet.org', root='http://maven.restlet.org')
+@Grab('org.codehaus.gpars:gpars:1.2.1')
+@Grab('org.codehaus.groovy.modules.http-builder:http-builder')
+@Grab('commons-io:commons-io:2.11.0')
 import groovyx.gpars.GParsPool
 import org.apache.commons.io.FileUtils
 import groovyx.net.http.RESTClient
@@ -28,8 +28,12 @@ class GenerateNPM extends Generator {
 These packages will be deployed to the repo $repoKey. 
 """
 
+        // CLI Login
+        String login_cmd = "jfrog rt c " + "--interactive=false " + "--url=${artifactoryUrl} " + "--user=${artifactoryUser} " + "--password=${artifactoryPassword} " + "art "
+        println login_cmd
+        passed &= HelperTools.executeCommandAndPrint(login_cmd) == 0 ? true : false
         // Login setup
-        ['root/npmSetup.sh'].execute ().waitForOrKill ( 15000 )
+//        ['root/npmSetup.sh'].execute ().waitForOrKill ( 15000 )
 
         if (packageName != "generated") {
             ['mv', 'root/generated', "root/${packageName}"].execute ().waitForOrKill ( 15000 )
@@ -45,27 +49,38 @@ These packages will be deployed to the repo $repoKey.
                 (batch_start..(Math.min(batch_start+numOfThreads, numOfPackages) - 1)).eachParallel { id ->
                     File iterDir = new File("tmp/generator/$batch_start/$id")
                     iterDir.mkdirs()
-                    ['cp', '-R', "root/${packageName}", "tmp/generator/$batch_start/$id/${packageName}${id}"].execute ( ).waitForOrKill ( 15000 )
-                    File pkgBaseDir = new File("tmp/generator/$batch_start/$id/${packageName}${id}")
-                    File addFile = new File(pkgBaseDir, "${packageName}${id}.dat")
+                    ['cp', '-R', "/root/${packageName}", "/tmp/generator/$batch_start/$id/${packageName}"].execute ( ).waitForOrKill ( 15000 )
+                    File pkgBaseDir = new File("/tmp/generator/$batch_start/$id/${packageName}")
+                    File addFile = new File(pkgBaseDir, "${packageName}.dat")
                     int fileSize = (maxSize == minSize) ? minSize : Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
                     HelperTools.createBinFile(addFile, fileSize)
                     ['sed', '-i', "s/{{VERSION}}/1.$id.0/g", "package.json"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
-                    ['sed', '-i', "s/\"generated\"/\"${packageName}${id}\"/g", "package.json"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
-                    ['sed', '-i', "s/generated.dat/${packageName}${id}.dat/g", "package.json"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
-                    ['npm', 'install', "${packageName}${id}"].execute (null, iterDir).waitForOrKill ( 25000 )
-                    ['npm', 'publish', "${packageName}${id}"].execute (null, iterDir).waitForOrKill ( 36000000 )
-                    File npmFile = new File("/root/.npm/${packageName}${id}/1.$id.0/package.tgz")
-                    println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${packageName}${id}/-/${packageName}${id}-1.${id}.0.tgz ${HelperTools.getFileSha1(npmFile)}")
-                    RESTClient rc = new RESTClient()
-                    def base64 = "${artifactoryUser}:${artifactoryPassword}".bytes.encodeBase64().toString()
-                    rc.setHeaders([Authorization: "Basic ${base64}"])
-                    try {
-                        rc.put(uri: "${artifactoryUrl}/api/storage/$repoKey/${packageName}${id}?properties=${packageProperties}")
-                    } catch (Exception e) {
-                        System.err.println("Update properties API call failed for $repoKey/${packageName}${id} " +
-                                "Exception:  ${e.getMessage()}")
-                    }
+                    ['sed', '-i', "s/\"generated\"/\"${packageName}\"/g", "package.json"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
+                    ['sed', '-i', "s/generated.dat/${packageName}.dat/g", "package.json"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
+//                    ['npm', 'install', "${packageName}${id}"].execute (null, iterDir).waitForOrKill ( 25000 )
+                    ['npm', 'pack'].execute (null, pkgBaseDir).waitForOrKill ( 36000000 )
+                    File npmFile = new File("/tmp/generator/$batch_start/$id/${packageName}/${packageName}-1.$id.0.tgz")
+                    println(npmFile.exists())
+                    println(iterDir.listFiles())
+                    println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/${packageName}/-/${packageName}-1.${id}.0.tgz")
+//                    RESTClient rc = new RESTClient()
+//                    def base64 = "${artifactoryUser}:${artifactoryPassword}".bytes.encodeBase64().toString()
+//                    rc.setHeaders([Authorization: "Basic ${base64}"])
+//                    try {
+//                        rc.put(uri: "${artifactoryUrl}/api/storage/$repoKey/${packageName}${id}?properties=${packageProperties}")
+//                    } catch (Exception e) {
+//                        System.err.println("Update properties API call failed for $repoKey/${packageName}${id} " +
+//                                "Exception:  ${e.getMessage()}")
+//                    }
+                    long buildNumber = System.currentTimeMillis()
+                    String upload_cmd = "jfrog rt upload " +
+                            "--server-id=art " +
+                            "--flat=true --threads=${numOfThreads} " +
+                            "--build-name=dummy-project --build-number=${buildNumber} --props=${packageProperties} " +
+                            "/${batchDir}/*.tgz " +
+                            "$repoKey/"
+                    println upload_cmd
+                    passed &= HelperTools.executeCommandAndPrint(upload_cmd) == 0 ? true : false
                 }
                 FileUtils.deleteDirectory(batchDir)
             }

@@ -1,8 +1,8 @@
 #!/usr/local/bin/groovy
-@GrabResolver(name = 'jcenter', root = 'https://jcenter.bintray.com/')
-@Grab('org.codehaus.gpars:gpars:0.9')
-@Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2')
-@Grab('commons-io:commons-io:1.2')
+//@GrabResolver(name='restlet.org', root='http://maven.restlet.org')
+@Grab('org.codehaus.gpars:gpars:1.2.1')
+@Grab('org.codehaus.groovy.modules.http-builder:http-builder')
+@Grab('commons-io:commons-io:2.11.0')
 import groovyx.gpars.GParsPool
 import org.apache.commons.io.FileUtils
 import groovyx.net.http.RESTClient
@@ -30,7 +30,7 @@ They will range in size from $minSize to $maxSize bytes and have the format $pac
 """
 
         // Login
-        ['jfrog', 'rt', 'c', "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}", 'art'].execute ().waitForOrKill (15000)
+        ['jfrog', 'rt', 'c', "--interactive=false", "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}", 'art'].execute()
         // Creates and uploads files in batches
         GParsPool.withPool numOfThreads, {
             0.step numOfPackages, numOfThreads, {
@@ -51,16 +51,16 @@ They will range in size from $minSize to $maxSize bytes and have the format $pac
                     ['sed', '-i', "s/{j}/$packageRelease/g",  "rpmbuild/SPECS/rpmpackage.spec"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
                     ['sed', '-i', "s/{NAME}/$packagePrefix/g", "rpmbuild/SPECS/rpmpackage.spec"].execute (null, pkgBaseDir).waitForOrKill ( 15000 )
                     ['rpmbuild', '-v', '-bb', "rpmbuild/SPECS/rpmpackage.spec"].execute (null, pkgBaseDir).waitForOrKill ( 35000 )
-                    File rpmFile = new File("tmp/generator/$batch_start/$id/rpmbuild/RPMS/x86_64/${packagePrefix}-${id}-${packageRelease}.x86_64.rpm")
-                    println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/$rootDir/${packagePrefix}-${id}-${packageRelease}.x86_64.rpm ${HelperTools.getFileSha1(rpmFile)}")
+//                    File rpmFile = new File("tmp/generator/$batch_start/$id/rpmbuild/RPMS/x86_64/${packagePrefix}-${id}-${packageRelease}.x86_64.rpm")
+//                    println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/$rootDir/${packagePrefix}-${id}-${packageRelease}.x86_64.rpm ${HelperTools.getFileSha1(rpmFile)}")
                 }
                 // Upload the batch of files
                 long buildNumber = System.currentTimeMillis()
                 String cmd = "jfrog rt upload " +
                         "--server-id=art " +
-                        "--flat=true --threads=${numOfThreads} " +
-                        "--build-name=dummy-project --build-number=${buildNumber} --props=${packageProperties} " +
-                        "${batchDir}/*.rpm " +
+//                        "--flat=true --threads=${numOfThreads} " +
+//                        "--build-name=dummy-project --build-number=${buildNumber} --props=${packageProperties} " +
+                        "--threads=${numOfThreads} " +"/${batchDir}/*.rpm " +
                         "$repoKey/$rootDir/"
                 println cmd
                 passed &= HelperTools.executeCommandAndPrint(cmd) == 0 ? true : false

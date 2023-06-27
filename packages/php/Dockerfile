@@ -2,8 +2,8 @@ ARG REGISTRY
 FROM ${REGISTRY}openjdk:8
 # Install needed tools, including CLI
 RUN apt-get update && apt-get install -y curl unzip zip
-RUN curl -OL https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.4.19.zip
-RUN unzip apache-groovy-binary-2.4.19.zip && ln -s /groovy-2.4.19/bin/groovy /usr/local/bin/groovy
+RUN curl -OL "https://archive.apache.org/dist/groovy/3.0.17/distribution/apache-groovy-binary-3.0.17.zip"
+RUN unzip apache-groovy-binary-3.0.17.zip && ln -s /groovy-3.0.17/bin/groovy /usr/local/bin/groovy
 RUN curl -fL https://getcli.jfrog.io | sh && ln -s /jfrog /usr/local/bin/jfrog
 # Actual generator
 ADD Runner.groovy /Runner.groovy

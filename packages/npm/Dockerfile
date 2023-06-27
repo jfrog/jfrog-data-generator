@@ -1,9 +1,12 @@
 ARG REGISTRY
-FROM ${REGISTRY}openjdk:8
-# Install needed tools, including CLI
-RUN apt-get update && apt-get install -y curl unzip npm
-RUN curl -OL https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.4.14.zip
-RUN unzip apache-groovy-binary-2.4.14.zip && ln -s /groovy-2.4.14/bin/groovy /usr/local/bin/groovy
+FROM ${REGISTRY}fedora
+RUN yum -y update && yum clean all
+RUN yum update -y && yum install -y bc java-1.8.0-openjdk java-devel curl unzip npm tar gzip && yum clean all
+ENV JAVA_HOME /usr/lib/jvm/java-openjdk
+RUN #apt-get update && apt-get install -y curl unzip npm
+RUN curl -OL "https://archive.apache.org/dist/groovy/3.0.17/distribution/apache-groovy-binary-3.0.17.zip"
+RUN unzip apache-groovy-binary-3.0.17.zip && ln -s /groovy-3.0.17/bin/groovy /usr/local/bin/groovy
+RUN curl -fL https://getcli.jfrog.io | sh && ln -s /jfrog /usr/local/bin/jfrog
 ADD npmbuild.tar.gz /root/
 # Actual generator
 ADD Runner.groovy /Runner.groovy

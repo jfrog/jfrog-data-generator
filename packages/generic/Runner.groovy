@@ -1,8 +1,8 @@
 #!/usr/local/bin/groovy
-@GrabResolver(name = 'jcenter', root = 'https://jcenter.bintray.com/')
-@Grab('org.codehaus.gpars:gpars:0.9')
-@Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2')
-@Grab('commons-io:commons-io:1.2')
+//@GrabResolver(name='restlet.org', root='http://maven.restlet.org')
+@Grab('org.codehaus.gpars:gpars:1.2.1')
+@Grab('org.codehaus.groovy.modules.http-builder:http-builder')
+@Grab('commons-io:commons-io:2.11.0')
 import groovyx.gpars.GParsPool
 import org.apache.commons.io.FileUtils
 import groovyx.net.http.RESTClient
@@ -30,7 +30,9 @@ They will range in size from $minSize to $maxSize bytes and have the format $pac
 """
 
         // Login
-        ['jfrog', 'rt', 'c', "--url=${artifactoryUrl}", "--user=${artifactoryUser}", "--password=${artifactoryPassword}", 'art'].execute().waitForOrKill (15000)
+        String login_cmd = "jfrog rt c " + "--interactive=false " + "--url=${artifactoryUrl} " + "--user=${artifactoryUser} " + "--password=${artifactoryPassword} " + "art "
+        println login_cmd
+        passed &= HelperTools.executeCommandAndPrint(login_cmd) == 0 ? true : false
         // Creates and uploads files in batches
         GParsPool.withPool numOfThreads, {
             0.step numOfPackages, numOfThreads, {
@@ -42,18 +44,18 @@ They will range in size from $minSize to $maxSize bytes and have the format $pac
                     File addFile = new File(batchDir, "$packagePrefix$id.$packageExtension")
                     int fileSize = (maxSize == minSize) ? minSize : Math.abs(random.nextLong() % (maxSize - minSize)) + minSize
                     HelperTools.createBinFile(addFile, fileSize)
-                    println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/$rootDir/$packagePrefix$id.$packageExtension ${HelperTools.getFileSha1(addFile)}")
+                    println("$OUTPUT_PREFIX $ADD_PREFIX $repoKey/$rootDir/$packagePrefix$id.$packageExtension")
                 }
                 // Upload the batch of files
                 long buildNumber = System.currentTimeMillis()
-                String cmd = "jfrog rt upload " +
+                String upload_cmd = "jfrog rt upload " +
                         "--server-id=art " +
                         "--flat=true --threads=${numOfThreads} " +
                         "--build-name=dummy-project --build-number=${buildNumber} --props=${packageProperties} " +
-                        "${batchDir}/ " +
+                        "/${batchDir}/ " +
                         "$repoKey/$rootDir/"
-                println cmd
-                passed &= HelperTools.executeCommandAndPrint(cmd) == 0 ? true : false
+                println upload_cmd
+                passed &= HelperTools.executeCommandAndPrint(upload_cmd) == 0 ? true : false
                 FileUtils.deleteDirectory(batchDir)
             }
         }

@@ -1,8 +1,8 @@
 #!/usr/local/bin/groovy
-@GrabResolver(name = 'jcenter', root = 'https://jcenter.bintray.com/')
-@Grab('org.codehaus.gpars:gpars:0.9')
-@Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2')
-@Grab('commons-io:commons-io:1.2')
+//@GrabResolver(name='restlet.org', root='http://maven.restlet.org')
+@Grab('org.codehaus.gpars:gpars:1.2.1')
+@Grab('org.codehaus.groovy.modules.http-builder:http-builder')
+@Grab('commons-io:commons-io:2.11.0')
 import groovyx.gpars.GParsPool
 import org.apache.commons.io.FileUtils
 import groovyx.net.http.RESTClient
@@ -62,12 +62,12 @@ These docker image(s) will be pushed to the docker repo ${repoKey} in Artifactor
                     RESTClient rc = new RESTClient()
                     def base64 = "${artifactoryUser}:${artifactoryPassword}".bytes.encodeBase64().toString()
                     rc.setHeaders([Authorization: "Basic ${base64}"])
-                    try {
-                        rc.put(uri: "${artifactoryUrl}/api/storage/${repoKey}/${packageName}/1.${id}?properties=${packageProperties}")
-                    } catch (Exception e) {
-                        System.err.println("Update properties API call failed for ${repoKey}/${packageName}/1.${id} " +
-                                "Exception:  ${e.getMessage()}")
-                    }
+//                    try {
+//                        rc.put(uri: "${artifactoryUrl}/api/storage/${repoKey}/${packageName}/1.${id}?properties=${packageProperties}")
+//                    } catch (Exception e) {
+//                        System.err.println("Update properties API call failed for ${repoKey}/${packageName}/1.${id} " +
+//                                "Exception:  ${e.getMessage()}")
+//                    }
                 }
                 FileUtils.deleteDirectory(batchDir)
             }
